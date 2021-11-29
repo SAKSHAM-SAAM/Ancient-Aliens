@@ -34,13 +34,15 @@ public:
 
 	// overriding damge function
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
+	void Shoot();
 private:
 	void MoveForward(float AxisValue);
 	void MoveBackward(float AxisValue);
 	void MoveLeft(float AxisValue);
 	void MoveRight(float AxisValue);
 
-	void Shoot();
+	
 	void SuperJump();
 	/*
 	void LookUp(float AxisValue);

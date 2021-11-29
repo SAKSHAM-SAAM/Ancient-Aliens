@@ -54,9 +54,11 @@ void AWeapon::PullTrigger()
 	// Adding Trace Ray to spawn at a location with roation vector of camera
 	// Location of veiwport + rotation of viewport in vector format  + maximum range to map
 	FVector End = Location + Rotation.Vector() * MaxRange;
-
+	FCollisionQueryParams Params;
+	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(GetOwner());
 	FHitResult Hit;
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit,Location,End,ECollisionChannel::ECC_GameTraceChannel1);
+	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit,Location,End,ECollisionChannel::ECC_GameTraceChannel1, Params);
 
 	if(bSuccess)
 	{

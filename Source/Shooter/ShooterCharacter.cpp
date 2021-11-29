@@ -4,7 +4,8 @@
 #include "ShooterCharacter.h"
 #include "Weapon.h"
 #include "Kismet/GameplayStatics.h"
-
+#include "Components/CapsuleComponent.h"
+#include "ShooterGameModeBase.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -104,6 +105,17 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 		Dead=true;
 	} 
 	UE_LOG(LogTemp, Warning, TEXT("Health left %f"), Health);
+
+	if(isDead())
+	{
+		AShooterGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AShooterGameModeBase>();
+		if(GameMode != nullptr)
+		{
+			GameMode->PawnKilled(this);
+		}
+		DetachFromControllerPendingDestroy();
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 
 	return DamageToApply;
 }
