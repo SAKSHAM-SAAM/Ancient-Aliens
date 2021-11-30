@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool isDead() const;
 
+	UFUNCTION(BlueprintPure)
+	float GetHealthPercent() const;
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
@@ -65,8 +68,12 @@ private:
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AWeapon> WeaponClass;
 
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class UUserWidget> Crosshair;
+
 	UPROPERTY()
 	AWeapon* weapon;
+
 
 //------------------------------------------------------------------------
 	// SAKSHAM SHARMA'S TEST AREA
@@ -85,5 +92,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	int JumpCounter;
 
+	UPROPERTY(EditAnywhere)
+	USoundBase* SuperJumpSFX;
 	virtual void Landed(const FHitResult& Hit) override;
 };

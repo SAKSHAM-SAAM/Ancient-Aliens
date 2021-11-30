@@ -4,6 +4,7 @@
 #include "EndShooterGameModeBase.h"
 #include "EngineUtils.h"
 #include "GameFramework/Controller.h"
+#include "ShooterAIController.h"
 
 void AEndShooterGameModeBase::PawnKilled(APawn* PawnKilled)
 {
@@ -15,6 +16,17 @@ void AEndShooterGameModeBase::PawnKilled(APawn* PawnKilled)
     {
         EndGame(false);
     }
+
+    // Loop over all AIController Character
+    for (AShooterAIController* Controller : TActorRange<AShooterAIController>(GetWorld()) )
+    {
+        if (!Controller->isDead())
+        {
+            return;
+        }
+    }
+    
+    EndGame(true);
 
 }
 void AEndShooterGameModeBase::EndGame(bool bIsPlayerWinner)

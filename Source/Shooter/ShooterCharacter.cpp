@@ -6,8 +6,9 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/CapsuleComponent.h"
 #include "ShooterGameModeBase.h"
+#include "Blueprint/UserWidget.h"
 
-// Sets default values
+// Sets default values 
 AShooterCharacter::AShooterCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -88,6 +89,8 @@ void AShooterCharacter::SuperJump()
 	{
 		UGameplayStatics::SpawnEmitterAttached(Booster, Character, TEXT("FX_Piston_l"));
 		UGameplayStatics::SpawnEmitterAttached(Booster, Character, TEXT("FX_Piston_r"));
+		UGameplayStatics::SpawnSoundAttached(SuperJumpSFX, Character, TEXT("FX_Piston_r"));
+
 		ACharacter::LaunchCharacter(FVector(0, 0, JumpHeight), false, true);
 		JumpCounter++;
 	}
@@ -122,4 +125,8 @@ float AShooterCharacter::TakeDamage(float DamageAmount, struct FDamageEvent cons
 bool AShooterCharacter::isDead() const
 {
 	return Dead;
+}
+float AShooterCharacter::GetHealthPercent() const
+{
+	return Health / MaxHealth;
 }

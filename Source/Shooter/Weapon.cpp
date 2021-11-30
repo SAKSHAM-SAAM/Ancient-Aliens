@@ -38,13 +38,35 @@ void AWeapon::PullTrigger()
 	// Spawn Emitter at location of muzzle
 	// UE_LOG(LogTemp, Warning, TEXT("Trigger Pulled"));
 	UGameplayStatics::SpawnEmitterAttached(MuzzleFlash, Mesh, TEXT("MuzzleFlashSocket"));
+	UGameplayStatics::SpawnSoundAttached(MuzzleSound,Mesh, TEXT("MuzzleFlashSocket"));
 
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if(OwnerPawn == nullptr) return;
+	FHitResult Hit;
+	FVector ShotDirection;
+	bool bSuccess = GunTrace(Hit, ShotDirection);
 
-	AController* OwnerController = OwnerPawn->GetController();
+	AController* OwnerController = GetOwnerController();
 	if(OwnerController == nullptr) return;
 
+	if(bSuccess)
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFlash, Hit.Location,ShotDirection.Rotation());
+		UGameplayStatics::SpawnSoundAttached(ImpactSound, Mesh, TEXT("MuzzleFlashSocket"));
+
+		AActor* ActorHit = Hit.GetActor();
+		if(ActorHit != nullptr)
+		{
+			FPointDamageEvent DamageEvent(WeaponDamage, Hit, ShotDirection, nullptr);
+			ActorHit->TakeDamage(WeaponDamage, DamageEvent, OwnerController, this);
+		}
+	}
+	// Used to capture viewport
+	// DrawDebugCamera(GetWorld() ,Location ,Rotation ,90 ,2 ,FColor::Red ,true);
+}
+
+bool AWeapon::GunTrace(FHitResult& Hit,FVector& ShotDirection)
+{
+	AController* OwnerController = GetOwnerController();
+	if(OwnerController == nullptr) return false;
 	// - - - - - - - - - - 
 	FVector Location ;
 	FRotator Rotation ;
@@ -57,21 +79,16 @@ void AWeapon::PullTrigger()
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
 	Params.AddIgnoredActor(GetOwner());
-	FHitResult Hit;
-	bool bSuccess = GetWorld()->LineTraceSingleByChannel(Hit,Location,End,ECollisionChannel::ECC_GameTraceChannel1, Params);
 
-	if(bSuccess)
-	{
-		FVector ShotDirection= -Rotation.Vector();
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitFlash, Hit.Location,ShotDirection.Rotation());
+	ShotDirection= -Rotation.Vector();
 
-		AActor* ActorHit = Hit.GetActor();
-		if(ActorHit != nullptr)
-		{
-			FPointDamageEvent DamageEvent(WeaponDamage, Hit, ShotDirection, nullptr);
-			ActorHit->TakeDamage(WeaponDamage, DamageEvent, OwnerController, this);
-		}
-	}
-	// Used to capture viewport
-	// DrawDebugCamera(GetWorld() ,Location ,Rotation ,90 ,2 ,FColor::Red ,true);
+	return GetWorld()->LineTraceSingleByChannel(Hit,Location,End,ECollisionChannel::ECC_GameTraceChannel1, Params);
+}
+
+AController* AWeapon::GetOwnerController() const
+{
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if(OwnerPawn == nullptr) return nullptr;
+
+	return OwnerPawn->GetController();
 }
